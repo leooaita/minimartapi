@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-namespace MiniMartApi.Models
+using MiniMartApi.Models;
+namespace MiniMartApi.Interfaces
 {
     public interface IStoreRepository
     {

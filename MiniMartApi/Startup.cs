@@ -10,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MiniMartApi.Models;
+using MiniMartApi.Interfaces;
 using MiniMartApi.Repositories;
 
 namespace MiniMartApi
@@ -32,6 +32,8 @@ namespace MiniMartApi
             services.AddControllers().AddNewtonsoftJson();
 
             services.AddSingleton<IStoreRepository, StoreRepository>();
+            services.AddSingleton<IProductCategoryRepository, ProductCategoryRepository>();
+            services.AddSingleton<IProductRepository, ProductRepository>();
             services.AddSwaggerGen(c =>
             {
                 //c.SwaggerDoc("v1", new Info() { description = "My API" });

@@ -37,15 +37,49 @@ namespace MiniMartApi.Controllers
             using (var connection = this.Connection)
             {
                 connection.Open();
-                var result = await connection.QueryAsync<String>(MSSqlLayer.getCreateStore());
+                // Store Entity
+                var result = await connection.QueryAsync<String>(MSSqlFunctions.getCreateStore());
                 List<String> log_results = result.ToList();
                 try
                 {
-                    var resultFunction = await connection.QueryAsync<String>(MSSqlLayer.getFunctionStore());
+                    var resultFunction = await connection.QueryAsync<String>(MSSqlFunctions.getFunctionStore());
                     log_results.Add("Store function created");
                 } catch (SqlException e)
                 {
                     log_results.Add("Error creating store function");
+                }
+                // Product Category Entity
+                var resultProductCategory = await connection.QueryAsync<String>(MSSqlFunctions.getCreateProductCategory());
+                log_results =log_results.Union(resultProductCategory.ToList()).ToList();
+                try
+                {
+                    var resultFunction = await connection.QueryAsync<String>(MSSqlFunctions.getFunctionProductCategory());
+                    log_results.Add("Product Category function created");
+                }
+                catch (SqlException e)
+                {
+                    log_results.Add("Error creating Product Category function");
+                }
+                // Product Entity
+                var resultProduct = await connection.QueryAsync<String>(MSSqlFunctions.getCreateProduct());
+                log_results = log_results.Union(resultProduct.ToList()).ToList();
+                try
+                {
+                    var resultFunction = await connection.QueryAsync<String>(MSSqlFunctions.getFunctionProduct());
+                    log_results.Add("Product function created");
+                }
+                catch (SqlException e)
+                {
+                    log_results.Add("Error creating Product function");
+                }
+                try
+                {
+                    var resultFunction = await connection.QueryAsync<String>(MSSqlFunctions.getConstraint());
+                    log_results.Add("Constraints created");
+                }
+                catch (SqlException e)
+                {
+                    log_results.Add("Error creating Constraint");
                 }
                 return log_results;
             }

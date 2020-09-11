@@ -8,13 +8,14 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using MiniMartApi.Interfaces;
+
 namespace MiniMartApi.Repositories
 {
-    public class StoreRepository : IStoreRepository
+    public class ProductRepository : IProductRepository
     {
         private readonly IConfiguration _config;
 
-        public StoreRepository(IConfiguration config)
+        public ProductRepository(IConfiguration config)
         {
             _config = config;
         }
@@ -27,22 +28,22 @@ namespace MiniMartApi.Repositories
             }
         }
         /// <summary>
-        /// Gets the Store by identifier.
+        /// Gets the Product by identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
-        public async Task<Store> GetByID(int id)
+        public async Task<Product> GetByID(int id)
         {
             try
             {
                 using (IDbConnection con = Connection)
                 {
-                    string sQuery = "StoreFunc";
+                    string sQuery = "ProductFunc";
                     con.Open();
                     DynamicParameters param = new DynamicParameters();
                     param.Add("@Mode", "GETBYID");
                     param.Add("@Id", id);
-                    var result = await con.QueryAsync<Store>(sQuery, param, commandType: CommandType.StoredProcedure);
+                    var result = await con.QueryAsync<Product>(sQuery, param, commandType: CommandType.StoredProcedure);
                     return result.FirstOrDefault();
                 }
             }
@@ -52,20 +53,20 @@ namespace MiniMartApi.Repositories
             }
         }
         /// <summary>
-        /// Gets all store from BD.
+        /// Gets all Product from BD.
         /// </summary>
         /// <returns></returns>
-        public async Task<List<Store>> GetAll()
+        public async Task<List<Product>> GetAll()
         {
             try
             {
                 using (IDbConnection con = Connection)
                 {
-                    string sQuery = "StoreFunc";
+                    string sQuery = "ProductFunc";
                     con.Open();
                     DynamicParameters param = new DynamicParameters();
                     param.Add("@Mode", "GETALL");
-                    var result = await con.QueryAsync<Store>(sQuery, param, commandType: CommandType.StoredProcedure);
+                    var result = await con.QueryAsync<Product>(sQuery, param, commandType: CommandType.StoredProcedure);
                     return result.ToList();
                 }
             }
@@ -75,22 +76,21 @@ namespace MiniMartApi.Repositories
             }
 
         }
-        public async Task<Store> Edit(Store store)
+        public async Task<Product> Edit(Product product)
         {
             try
             {
                 using (IDbConnection con = Connection)
                 {
-                    string sQuery = "StoreFunc";
+                    string sQuery = "ProductFunc";
                     con.Open();
                     DynamicParameters param = new DynamicParameters();
                     param.Add("@Mode", "EDIT");
-                    param.Add("@Id", store.Id);
-                    param.Add("@OpenedFrom", store.OpenedFrom);
-                    param.Add("@OpenedTo", store.OpenedTo);
-                    param.Add("@Name", store.Name);
-                    param.Add("@Address", store.Address);
-                    var result = await con.QueryAsync<Store>(sQuery, param, commandType: CommandType.StoredProcedure);
+                    param.Add("@Id", product.Id);
+                    param.Add("@Name", product.Name);
+                    param.Add("@Price", product.Price);
+                    param.Add("@ProductCategoryId", product.ProductCategoryId);
+                    var result = await con.QueryAsync<Product>(sQuery, param, commandType: CommandType.StoredProcedure);
                     return result.FirstOrDefault();
                 }
             }
@@ -104,18 +104,18 @@ namespace MiniMartApi.Repositories
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
-        public async Task<Store> Delete(int id)
+        public async Task<Product> Delete(int id)
         {
             try
             {
                 using (IDbConnection con = Connection)
                 {
-                    string sQuery = "StoreFunc";
+                    string sQuery = "ProductFunc";
                     con.Open();
                     DynamicParameters param = new DynamicParameters();
                     param.Add("@Mode", "DELETE");
                     param.Add("@Id", id);
-                    var result = await con.QueryAsync<Store>(sQuery, param, commandType: CommandType.StoredProcedure);
+                    var result = await con.QueryAsync<Product>(sQuery, param, commandType: CommandType.StoredProcedure);
                     return result.FirstOrDefault();
                 }
             }
@@ -126,3 +126,5 @@ namespace MiniMartApi.Repositories
         }
     }
 }
+
+

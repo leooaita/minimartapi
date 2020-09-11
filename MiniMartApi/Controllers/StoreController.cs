@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MiniMartApi.Models;
+using MiniMartApi.Interfaces;
 
 namespace MiniMartApi.Controllers
 {
@@ -14,9 +15,9 @@ namespace MiniMartApi.Controllers
     {
         private readonly IStoreRepository _storeRepository;
 
-        public StoreController(IStoreRepository contactMasterRepo)
+        public StoreController(IStoreRepository storeRepository)
         {
-            _storeRepository = contactMasterRepo;
+            _storeRepository = storeRepository;
         }
 
         [HttpGet("{id}")]
@@ -32,14 +33,14 @@ namespace MiniMartApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Store>> Edit([FromBody] Store contactMaster)
+        public async Task<ActionResult<Store>> Edit([FromBody] Store store)
         {
-            if (contactMaster == null || !ModelState.IsValid)
+            if (store == null || !ModelState.IsValid)
             {
                 return BadRequest("Invalid State");
             }
 
-            return await _storeRepository.Edit(contactMaster);
+            return await _storeRepository.Edit(store);
         }
 
         [HttpDelete("{id}")]

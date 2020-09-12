@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 
 namespace MiniMartApi.Models
 {
-    public class Product
+    public class ProductCategory : IEquatable<ProductCategory>
     {
         public Int32 Id { get; set; }
         public string Name { get; set; }
-        public decimal Price { get; set; }
-        public Int32 ProductCategoryId { get; set; }
+        public bool Equals(ProductCategory other)
+        {
+            return (this.Id == other.Id);
+        }
     }
 }

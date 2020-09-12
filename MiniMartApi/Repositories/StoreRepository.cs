@@ -18,7 +18,6 @@ namespace MiniMartApi.Repositories
         {
             _config = config;
         }
-
         public IDbConnection Connection
         {
             get

@@ -122,6 +122,7 @@ namespace MiniMartApi.Sqls
 				            insert into [dbo].[Product] (Id,[ProductCategoryId],[Name],[Price]) values (20,4,'Generic soap',56.18)
 					        insert into [dbo].[Product] (Id,[ProductCategoryId],[Name],[Price]) values (21,4,'PANTONE shampoo',18.18)
 					        insert into [dbo].[Product] (Id,[ProductCategoryId],[Name],[Price]) values (22,4,'Cabbagegate toothpaste',28.18)
+                            insert into [dbo].[Product] (Id,[ProductCategoryId],[Name],[Price]) values (23,4,'Hang -yourself toothpaste',28.18)
 
 				        SET IDENTITY_INSERT [dbo].[Product]  OFF
                         insert into @loglines (logline) values ('Information of product initialized correctly')                    

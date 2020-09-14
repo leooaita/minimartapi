@@ -12,6 +12,11 @@ namespace MiniMartApi.Models
         public int OpenedTo { get; set; }
         public string Name { get; set; }
         public string Address { get; set; }
-        
+        public IList<StockItem> Stock { get; set; } 
+
+        public Store():base()
+        {
+            this.Stock = new List<StockItem>();
+        }
     }
 }

@@ -72,6 +72,10 @@ namespace MiniMartApi.Controllers
                 {
                     log_results.Add("Error creating Product function");
                 }
+                // Stock Entity
+                var resultStock = await connection.QueryAsync<String>(MSSqlFunctions.getCreateStock());
+                log_results = log_results.Union(resultStock.ToList()).ToList();
+                // Constraint
                 try
                 {
                     var resultFunction = await connection.QueryAsync<String>(MSSqlFunctions.getConstraint());

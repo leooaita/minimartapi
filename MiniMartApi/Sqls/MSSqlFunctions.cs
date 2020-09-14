@@ -134,6 +134,48 @@ namespace MiniMartApi.Sqls
                     select logline from @loglines
                 ";
         }
+
+
+        public static string getCreateStock()
+        {
+            return @"
+                DECLARE @loglines TABLE (logline VARCHAR(300));
+                insert into @loglines (logline) values ('Setup Log:')
+                if not exists 
+                    (Select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'Stock')
+                    Begin
+                        CREATE TABLE[dbo].[Stock]
+                        (
+                            [Id] int IDENTITY(1,1) NOT NULL,
+                            [ProductId] int NOT NULL,
+                            [Cant] int NOT NULL,
+                            [StoreId] int not null
+                        );
+				        insert into @loglines (logline) values ('Stock table created successfully')
+                        insert into stock select Product.Id as ProductId,10,1 as StoreId from Product
+                        insert into stock select Product.Id as ProductId,10,2 as StoreId from Product
+                        insert into stock select Product.Id as ProductId,10,3 as StoreId from Product
+                        -- COCO Bay
+                        --select stock.id,cant,p.Name from stock left join product p on stock.ProductId=p.Id where storeid = 2 and name in ('Diet Slurm','PANTONE shampoo','Pure steel toilet paper','Generic soap','Cabbagegate toothpaste')
+                        update stock set cant = 0 where id in (select stock.id from stock left join product p on stock.ProductId=p.Id where storeid = 2 and name in ('Diet Slurm','PANTONE shampoo','Pure steel toilet paper','Generic soap','Cabbagegate toothpaste'))
+                        -- COCO Mall
+                        --select stock.id,cant,p.Name from stock left join product p on stock.ProductId=p.Id where storeid = 3 and name in ('Ravioloches x12','Ravioloches x48','Milanga ganga','Milanga ganga napo','Atlantis detergent','Virulanita','Sponge, Bob','Generic mop')
+                        update stock set cant = 0 where id in (select stock.id from stock left join product p on stock.ProductId=p.Id where storeid = 3 and name in ('Ravioloches x12','Ravioloches x48','Milanga ganga','Milanga ganga napo','Atlantis detergent','Virulanita','Sponge, Bob','Generic mop'))
+                        -- COCO Downtown
+                        --select stock.id,cant,p.Name from stock left join product p on stock.ProductId=p.Id where storeid = 1 and name in ('Sprute','Slurm','Atlantis detergent','Virulanita','Sponge, Bob','Generic mop','Pure steel toilet paper')
+                        update stock set cant = 0 where id in (select stock.id from stock left join product p on stock.ProductId=p.Id where storeid = 1 and name in ('Sprute','Slurm','Atlantis detergent','Virulanita','Sponge, Bob','Generic mop','Pure steel toilet paper'))
+                        insert into @loglines (logline) values ('Information of stock initialized correctly')                    
+                    End
+                    Else
+                    Begin
+                        insert into @loglines (logline) values ('Stock table Already exists in the database')
+                    End;
+                    select logline from @loglines
+                ";
+        }
+
+        
+
         /// <summary>
         /// Gets SQL Store Create Function Sentence.
         /// </summary>
@@ -344,5 +386,16 @@ namespace MiniMartApi.Sqls
 	                    ON DELETE NO ACTION ON UPDATE NO ACTION;
                     ";
         }
+        public static string getQueryStore(int? Id)
+        {
+            string sql = "select Store.*, Stock.*, Product.*, ProductCategory.* from Store left join Stock on Store.Id = Stock.StoreId left join Product on Product.Id = Stock.ProductId left join ProductCategory on Product.ProductCategoryId = ProductCategory.Id";
+            if (Id.HasValue)
+            {
+                return String.Format("{0} Where Store.Id={1}", sql, Id);
+            }
+            return sql;
+        }
     }
+
+ 
 }

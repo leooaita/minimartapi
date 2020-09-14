@@ -12,7 +12,6 @@ namespace MiniMartApi.Models
         public decimal Price { get; set; }
         public Int32 ProductCategoryId { get; set; }
         public ProductCategory productCategory { get; set; }
-
         public bool Equals(Product other)
         {
             return (this.Id == other.Id);

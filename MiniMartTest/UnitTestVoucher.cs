@@ -167,19 +167,19 @@ namespace MiniMartTest
             products.Add(new Tuple<Product, int>(cleaningProduct, 1));
             // 20 % off on Wednesdays and Thursdays, on Cleaning products,from Jan 27th to Feb 13th
             Voucher voucherDiscount = this.GetVoucher("COCO1V1F8XOG1MZZ");
-            // In Range
-            decimal result_discount = voucherDiscount.Calculate(products, new DateTime(DateTime.Now.Year, 1, 28));
+            // In Range, 2020/2/3 is Wednesdays
+            decimal result_discount = voucherDiscount.Calculate(products, new DateTime(2020, 2, 5));
             Assert.Equal(20, result_discount);
             // Out of Range 1
-            decimal result_discount_zero = voucherDiscount.Calculate(products, new DateTime(DateTime.Now.Year, 1, 10));
+            decimal result_discount_zero = voucherDiscount.Calculate(products, new DateTime(2020, 1, 10));
             Assert.Equal(0, result_discount_zero);
             // Out of Range 2
-            decimal result_discount_zero_2 = voucherDiscount.Calculate(products, new DateTime(DateTime.Now.Year, 3, 10));
+            decimal result_discount_zero_2 = voucherDiscount.Calculate(products, new DateTime(2020, 6, 10));
             Assert.Equal(0, result_discount_zero_2);
             // Include 5 units of Generic mop, it cost 40.
             Product cleaningProduct_2 = getMockProduct(2, "Generic mop", 40, ProductCategoryType.Cleaning);
             products.Add(new Tuple<Product, int>(cleaningProduct_2, 5));
-            decimal result_discount_2 = voucherDiscount.Calculate(products, new DateTime(DateTime.Now.Year, 1, 28));
+            decimal result_discount_2 = voucherDiscount.Calculate(products, new DateTime(2020, 1, 29));
             Assert.Equal(20 + 40, result_discount_2);
         }
         [Fact]
@@ -312,11 +312,16 @@ namespace MiniMartTest
                 PrintItemList(products);
                 // Voucher 50% off on the second unit (of the same product), on "Hang-    yourself toothpaste", only on Mondays, first half of February.
                 Voucher voucherDiscount = this.GetVoucher("COCO0FLEQ287CC05");
-                // In Range
-                decimal result_discount_2 = voucherDiscount.Calculate(products, new DateTime(DateTime.Now.Year, 2, 14));
+                // In Range the first of January of 2021 is Monday
+                decimal result_discount_2 = voucherDiscount.Calculate(products, new DateTime(2021, 2, 1));
                 // Hang-    yourself toothpaste price is 100
                 // the 50% off second unit of yourself toothpaste is  = 50
                 Assert.Equal(50, result_discount_2);
+
+                // Not In Range, the second of January, 2021 is not Monday
+                decimal result_discount_3 = voucherDiscount.Calculate(products, new DateTime(2021, 2, 2));
+                
+                Assert.Equal(0, result_discount_3);
         }
     }
 }

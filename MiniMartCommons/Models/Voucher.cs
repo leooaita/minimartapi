@@ -63,6 +63,13 @@ namespace MiniMartApi.Models
         /// </returns>
         public bool isValidDate(DateTime date)
         {
+            if (Days.Count!=0)
+            {
+                if (!Days.Contains(date.DayOfWeek))
+                {
+                    return false;
+                }
+            } 
             int _from_day = valid_from_day.HasValue ? valid_from_day.Value : 1;
             int _from_month = valid_from_month.HasValue ? valid_from_month.Value : 1;
             int _from_year = valid_from_year.HasValue ? valid_from_year.Value : date.Year;
@@ -82,7 +89,7 @@ namespace MiniMartApi.Models
 
             DateTime _from = new DateTime(_from_year, _from_month, _from_day);
             DateTime _to = new DateTime(_to_year, _to_month, _to_day);
-
+            
             return _from <= date && _to>= date;
         }
         public bool isValidProduct(Product p)

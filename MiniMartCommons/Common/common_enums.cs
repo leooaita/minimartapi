@@ -27,4 +27,10 @@ namespace MiniMartCommons.Common
         Sodas = 3,
         Bathroom = 4
     }
+    public enum VoucherType
+    {
+        Discount = 1,
+        DiscountPerUnit = 2,
+        DiscountPayTwoTakeThree = 3
+    }
 }

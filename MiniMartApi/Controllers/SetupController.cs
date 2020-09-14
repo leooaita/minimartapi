@@ -72,6 +72,19 @@ namespace MiniMartApi.Controllers
                 {
                     log_results.Add("Error creating Product function");
                 }
+
+                // Voucher Entity
+                var resultVoucher = await connection.QueryAsync<String>(MSSqlFunctions.getCreateVoucher());
+                log_results = log_results.Union(resultVoucher.ToList()).ToList();
+                try
+                {
+                    var resultFunction = await connection.QueryAsync<String>(MSSqlFunctions.getFunctionVoucher());
+                    log_results.Add("Voucher function created");
+                }
+                catch (SqlException e)
+                {
+                    log_results.Add("Error creating Voucher function");
+                }
                 // Stock Entity
                 var resultStock = await connection.QueryAsync<String>(MSSqlFunctions.getCreateStock());
                 log_results = log_results.Union(resultStock.ToList()).ToList();

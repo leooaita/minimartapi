@@ -7,10 +7,14 @@ namespace MiniMart.Models
 {
     public class VoucherDiscount : Voucher
     {
-        private int Percent { get; set; }
+        public int Percent { get; set; }
         public VoucherDiscount(int pecent) : base()
         {
             this.Percent = pecent;
+        }
+        public VoucherDiscount() : base()
+        {
+
         }
         public override decimal Calculate(IList<Tuple<Product, int>> products, DateTime date)
         {

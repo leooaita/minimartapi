@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace MiniMart.Models
 {
@@ -10,7 +9,13 @@ namespace MiniMart.Models
     {
         public int percent { get; set; }
         public int applyPerCantUnit { get; set; }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VoucherDiscountPercentPerUnit"/> class.
+        /// </summary>
+        public VoucherDiscountPercentPerUnit() : base()
+        {
 
+        }
         public VoucherDiscountPercentPerUnit(int onUpTo, int percent, int applyPerCantUnit) :base()
         {
             this.onUpTo = onUpTo;

@@ -1,14 +1,9 @@
-﻿using System;
+﻿using MiniMartCommons.Common;
+using System;
 using System.Collections.Generic;
 
 namespace MiniMartApi.Models
 {
-    public enum VoucherType
-    {
-        Simple = 1,
-        PayTwoTakeThree = 2,
-        DiscountOnSecondUnit= 3
-    }
     public abstract class Voucher
     {
         public Voucher()
@@ -18,6 +13,7 @@ namespace MiniMartApi.Models
             this.validProducts = new List<Product>();
         }
         public String Id { get; set; }
+        
         public IList<ProductCategory> validCategorys { get; set; }
         public IList<Product> validProducts { get; set; }
         public int onUpTo { get; set; }
@@ -28,6 +24,27 @@ namespace MiniMartApi.Models
         public int? valid_to_day { get; set; }
         public int? valid_to_month { get; set; }
         public int? valid_to_year { get; set; }
+        private string valid_day_week_;
+        public string valid_day_week { 
+            get {
+                return this.valid_day_week_;
+            } set {
+                this.valid_day_week_ = value;
+
+                string[] days = this.valid_day_week.Split(',');
+                // Iterate through the words in array called words
+                foreach (string word in days)
+                {
+                    int day_;
+                    if (Int32.TryParse(word, out day_))
+                    {
+                        this.Days.Add((DayOfWeek)day_);
+                    }
+                }
+            } 
+        }
+        // Table Per Hierarchy Inheritance purpose
+        public int voucherType { get; set; }
         /// <summary>
         /// Inner Class that defines behavior like the 3x2 calculation per item and quantity
         /// </summary>
@@ -101,5 +118,8 @@ namespace MiniMartApi.Models
             return (this.validCategorys.Count == 0)?true:this.validCategorys.Contains(productCategory);            
         }
         public abstract decimal Calculate(IList<Tuple<Product, int>> products, DateTime date);
+
+
+        
     }
 }

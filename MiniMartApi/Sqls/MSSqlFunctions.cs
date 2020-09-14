@@ -173,8 +173,111 @@ namespace MiniMartApi.Sqls
                     select logline from @loglines
                 ";
         }
+        public static string getCreateVoucher()
+        {
+            return @"
+                DECLARE @loglines TABLE (logline VARCHAR(300));
+                insert into @loglines (logline) values ('Setup Log:')
+                if not exists
+                    (Select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'Voucher_Type')
+                    Begin
+                        CREATE TABLE [dbo].[Voucher_Type] (
+                                    [Id] int IDENTITY(1,1) NOT NULL,
+                                    [Name] [varchar](250) NULL
+                        );
+                        SET IDENTITY_INSERT [dbo].[Voucher_Type] ON
+                        insert into [dbo].[Voucher_Type](Id,[Name]) values (1,'VoucherDiscount');
+                        insert into [dbo].[Voucher_Type](Id,[Name]) values (2,'VoucherDiscountPercentPerUnit');
+                        insert into [dbo].[Voucher_Type](Id,[Name]) values (3,'VoucherDiscountPayTwoTakeThree');
+                        SET IDENTITY_INSERT [dbo].[Voucher_Type] OFF
+                        insert into @loglines (logline) values ('Voucher Type table created successfully')
+                    End
+                if not exists 
+                    (Select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'voucher_product')
+                    Begin
+                        create table [dbo].[voucher_product]
+                        (
+	                        voucherId varchar(30) not null,
+	                        productId int not null
+                        );
+                        insert into @loglines (logline) values ('Voucher Product table created successfully')
+                    end
+                if not exists 
+                    (Select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'voucher_week_day')
+                    Begin
+                        create table [dbo].[voucher_week_day]
+                        (
+	                        voucherId varchar(30) not null,
+	                        week_day int not null
+                        );
+                        insert into @loglines (logline) values ('Voucher Week Day table created successfully')
+                    end
+                if not exists 
+                    (Select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'voucher_productcategory')
+                    Begin
+                        create table [dbo].[voucher_productcategory]
+                        (
+	                        voucherId varchar(30) not null,
+	                        productcategoryId int not null
+                        );
+                        insert into @loglines (logline) values ('Voucher Product Category table created successfully')
+                end
+                if not exists 
+                    (Select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'Voucher')
+                    Begin
+                        create table [dbo].[voucher]  (
+	                        [Id] varchar(30) NOT NULL,
+	                        onUpTo int,
+                            [Percent] int,
+	                        valid_from_day int,
+	                        valid_from_month  int,
+	                        valid_from_year  int,
+	                        valid_to_day  int,
+	                        valid_to_month  int,
+	                        valid_to_year  int,
+                            valid_day_week  varchar(14),
+	                        voucherType  int
+                        );
+				        insert into @loglines (logline) values ('Voucher table created successfully')
 
-        
+                        INSERT INTO [dbo].[voucher]
+                                   ([Id]
+                                   ,[onUpTo]
+		                           ,[Percent]
+                                   ,[valid_from_day]
+                                   ,[valid_from_month]
+                                   ,[valid_from_year]
+                                   ,[valid_to_day]
+                                   ,[valid_to_month]
+                                   ,[valid_to_year]
+                                   ,[valid_day_week]
+                                   ,[voucherType])
+                             VALUES
+                                   ('COCO1V1F8XOG1MZZ' -- Id
+			                           ,0 -- upTo
+			                           ,20 -- percent
+			                           ,27 -- valid_from_day
+			                           ,1 -- valid_from_month
+			                           ,null -- valid_from_year
+			                           ,13 -- valid_to_day
+			                           ,2 -- valid_to_month
+			                           ,null -- valid_to_year
+                                       ,'4'
+			                           ,1 --voucherType Discount
+		                           )
+                        insert into voucher_productcategory(voucherId,productcategoryId) values ('COCO1V1F8XOG1MZZ',3)
+                        insert into voucher_week_day(voucherId,week_day) values ('COCO1V1F8XOG1MZZ',4)
+
+                        insert into @loglines (logline) values ('Information of voucher initialized correctly')                    
+                    End
+                    Else
+                    Begin
+                        insert into @loglines (logline) values ('Voucher table Already exists in the database')
+                    End;
+                    select logline from @loglines
+                ";
+        }
+
 
         /// <summary>
         /// Gets SQL Store Create Function Sentence.
@@ -362,6 +465,80 @@ namespace MiniMartApi.Sqls
             ";
         }
         /// <summary>
+        /// Gets the function voucher.
+        /// </summary>
+        /// <returns></returns>
+        public static string getFunctionVoucher()
+        {
+            return @"
+                  CREATE PROCEDURE[dbo].[VoucherFunc](
+                            @Mode           VARCHAR(10),  
+		                    @Id             VARCHAR(30) = NULL,
+                            @onUpTo INT = NULL,
+							@valid_from_day INT = NULL,
+							@valid_from_month  INT = NULL,
+							@valid_from_year  INT = NULL,
+							@valid_to_day  INT = NULL,
+							@valid_to_month  INT = NULL,
+							@valid_to_year  INT = NULL,
+							@voucherType  INT = NULL
+                    )     
+                    AS
+                    BEGIN
+                        SET NOCOUNT ON;
+                                IF(@Mode = 'GETALL')
+                            BEGIN
+                            SELECT
+                                    Id,[onUpTo],[valid_from_day],[valid_from_month],[valid_from_year],[valid_to_day],[valid_to_month],[valid_to_year],[voucherType]
+                                FROM
+                                    Voucher
+                            END
+                            ELSE IF(@Mode = 'GETBYID')
+                            BEGIN
+                                SELECT
+                                    Id,[onUpTo],[valid_from_day],[valid_from_month],[valid_from_year],[valid_to_day],[valid_to_month],[valid_to_year],[voucherType]
+                                FROM
+                                    Voucher
+                                WHERE
+                                    Id = @Id
+                            END
+                            ELSE IF(@Mode = 'EDIT')
+                            BEGIN
+                                IF NOT EXISTS(SELECT 1 FROM Product WHERE Id = @Id)  
+                                BEGIN
+                                    INSERT INTO Voucher(
+                                           [onUpTo],[valid_from_day],[valid_from_month],[valid_from_year],[valid_to_day],[valid_to_month],[valid_to_year],[voucherType]
+                                        )
+                                        VALUES(
+                                            @onUpTo,@valid_from_day,@valid_from_month,@valid_from_year,@valid_to_day,@valid_to_month,@valid_to_year,@voucherType
+                                        )
+                                END
+                                ELSE
+                                BEGIN
+                                    UPDATE
+                                        Voucher
+                                    SET
+									[onUpTo]=@onUpTo,
+									[valid_from_day]=@valid_from_day,
+									[valid_from_month]=@valid_from_month,
+									[valid_from_year]=@valid_from_year,
+									[valid_to_day]=@valid_to_day,
+									[valid_to_month]=@valid_to_month,
+									[valid_to_year]=@valid_to_year,
+									[voucherType]=@voucherType
+                                    WHERE
+                                        Id = @Id
+                                END
+                            END
+                            ELSE IF(@Mode= 'DELETE')
+                            BEGIN
+                                DELETE FROM Voucher WHERE Id = @Id
+                            END
+                    END
+            ";
+        }
+
+        /// <summary>
         /// Gets the constraint.
         /// </summary>
         /// <returns>String</returns>
@@ -395,6 +572,26 @@ namespace MiniMartApi.Sqls
             }
             return sql;
         }
+        public static string getQueryVoucher(string Id)
+        {
+            string sql = @"select Voucher.*, Product.*, ProductCategory.* from Voucher
+                    left join voucher_product on voucher_product.voucherId = Voucher.Id
+                    left
+                        join voucher_productcategory on voucher_productcategory.voucherId = Voucher.Id
+                    left
+                        join Product on Product.Id = voucher_product.ProductId
+                    left
+                        join ProductCategory on ProductCategory.Id = voucher_productcategory.productcategoryId
+            ";
+            if (Id == null)
+            {
+                return String.Format("{0} Where Voucher.Id={1}", sql, Id);
+            }
+            return sql;
+        }
+        
+        
+
     }
 
  

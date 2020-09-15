@@ -35,6 +35,7 @@ namespace MiniMartApi
             services.AddSingleton<IProductCategoryRepository, ProductCategoryRepository>();
             services.AddSingleton<IProductRepository, ProductRepository>();
             services.AddSingleton<IVoucherRepository, VoucherRepository>();
+            services.AddSingleton<ICartRepository, CartRepository>();
             services.AddSwaggerGen(c =>
             {
                 //c.SwaggerDoc("v1", new Info() { description = "My API" });

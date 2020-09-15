@@ -277,6 +277,52 @@ namespace MiniMartApi.Sqls
                     select logline from @loglines
                 ";
         }
+        public static string getCreateCart()
+        {
+            return @"
+                DECLARE @loglines TABLE (logline VARCHAR(300));
+                if not exists 
+                    (Select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'Cart')
+                    Begin
+                        	CREATE TABLE[dbo].[Cart]
+                            (
+                                [Id] int IDENTITY(1,1) NOT NULL,
+                                [StoreId] int NOT NULL,
+                                [Created] date not null,
+		                        [Owner] varchar(100),
+		                        [Total] decimal,
+		                        [Total_discount] decimal
+                            );
+                        insert into @loglines (logline) values ('Cart table created successfully')
+                    end
+                if not exists 
+                    (Select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'CartItem')
+                    Begin
+                            CREATE TABLE[dbo].[CartItem]
+                            (
+                                [Id] int IDENTITY(1,1) NOT NULL,
+                                [ProductId] int NOT NULL, 
+                                [CartId] int not null,
+		                        [Cant] int NOT NULL,
+		                        [Total] decimal,
+		                        [Total_discount] decimal,
+                            );
+                        insert into @loglines (logline) values ('CartItem table created successfully')
+                    end
+                if not exists 
+                    (Select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'CartVoucher')
+                    Begin
+                        	CREATE TABLE[dbo].[CartVoucher]
+                            (
+                                [Id] int IDENTITY(1,1) NOT NULL,
+                                [VoucherId] int NOT NULL,
+                                [CartId] int not null
+                            );
+                        insert into @loglines (logline) values ('CartVoucher table created successfully')
+                    end
+                select logline from @loglines
+                ";
+        }
 
 
         /// <summary>
@@ -538,6 +584,158 @@ namespace MiniMartApi.Sqls
             ";
         }
 
+
+        public static string getFunctionCart()
+        {
+            return @"
+                  CREATE PROCEDURE[dbo].[CartFunc](
+                            @Mode           VARCHAR(10),  
+		                    @Id             VARCHAR(30) = NULL,
+                            @StoreId        int =NULL,
+                            @Created        date =null,
+		                    @Owner          VARCHAR(100)=NULL,
+		                    @Total          decimal(10,2)=NULL,
+		                    @Total_discount decimal(10,2) =NULL
+                    )     
+                    AS
+                    BEGIN
+                        SET NOCOUNT ON;
+                                IF(@Mode = 'GETALL')
+                            BEGIN
+                            SELECT
+                                    Id, [StoreId] ,[Created] ,[Owner] ,[Total] ,[Total_discount] 
+                                FROM
+                                    Cart
+                            END
+                            ELSE IF(@Mode = 'GETBYID')
+                            BEGIN
+                                SELECT
+                                    Id, [StoreId] ,[Created] ,[Owner] ,[Total] ,[Total_discount] 
+                                FROM
+                                    Cart
+                                WHERE
+                                    Id = @Id
+                            END
+                            ELSE IF(@Mode = 'EDIT')
+                            BEGIN
+                                IF NOT EXISTS(SELECT 1 FROM Product WHERE Id = @Id)  
+                                BEGIN
+                                    INSERT INTO Cart(
+                                           [StoreId] ,[Created] ,[Owner] ,[Total] ,[Total_discount] 
+                                        )
+                                        VALUES(
+                                            @StoreId ,@Created ,@Owner ,@Total ,@Total_discount
+                                        )
+                                END
+                                ELSE
+                                BEGIN
+                                    UPDATE
+                                        Cart
+                                    SET
+									    [StoreId]=@StoreId,
+									    [Created]=@Created,
+									    [Owner]=@Owner,
+									    [Total]=@Total,
+									    [Total_discount]=@Total_discount
+                                    WHERE
+                                        Id = @Id
+                                END
+                            END
+                            ELSE IF(@Mode= 'DELETE')
+                            BEGIN
+                                DELETE FROM Cart WHERE Id = @Id
+                            END
+                    END
+            ";
+        }
+
+
+        public static string getFunctionCartItem()
+        {
+            return @"
+                    CREATE PROCEDURE[dbo].[CartItemFunc](
+                            @Mode           VARCHAR(10),  
+		                    @Id             int = NULL,
+                            @ProductId      int =NULL,
+                            @CartId         int =null,
+		                    @Cant           int =NULL
+							
+                    )     
+                    AS
+					DECLARE @result int
+					DECLARE @CantStock INT
+					DECLARE @CantBefore INT
+					DECLARE @CantPrev INT
+                    BEGIN
+						SET @result = 1
+                        SET NOCOUNT ON;
+                            IF(@Mode = 'EDIT')
+                            BEGIN
+								SET @CantStock = (select cant  from Stock where (StoreId = (Select StoreId from Cart where  Id =@CartId)) AND ProductId = @ProductId)
+					            IF NOT EXISTS(SELECT 1 FROM CartItem WHERE [ProductId] = @ProductId and [CartId] =@CartId  )  
+									BEGIN
+										if ((NOT @CantStock IS NULL) AND (@CantStock>=@Cant)) 
+											BEGIN
+												INSERT INTO CartItem(
+													   [ProductId] ,[CartId] ,[Cant] ,[Total]
+													)
+													VALUES(
+														@ProductId ,@CartId ,@Cant ,(Select price* @Cant from Product where Id = @ProductId)
+													)
+												UPDATE STOCK SET CANT =@CantStock-@Cant WHERE (StoreId = (Select StoreId from Cart where  Id =@CartId)) AND ProductId = @ProductId
+											END
+											ELSE
+											BEGIN
+												SET @result = 5 -- Not enough
+											END
+									END
+								 ELSE
+									BEGIN
+											SET @CantStock = (select cant  from Stock where (StoreId = (Select StoreId from Cart where  Id =@CartId)) AND ProductId = @ProductId) 
+											SET @CantPrev = (select cant  from CartItem where CartId =@CartId AND ProductId = @ProductId) 
+											if (NOT ((@CantPrev + @CantStock) < @Cant))
+											BEGIN
+												UPDATE
+													CartItem
+												SET
+													[ProductId]=@ProductId ,
+													[CartId]=@CartId,
+													[Cant] =@Cant,
+													[Total] = (Select price* @Cant from Product where Id = @ProductId)
+												WHERE
+													CartId = @CartId AND ProductId = @ProductId
+												UPDATE 
+													Stock
+												SET
+													[Cant] =(@CantPrev + @CantStock) - @Cant
+												where 
+													StoreId = (select StoreId from Cart where Id =@CartId) and
+													ProductId =@ProductId
+											END
+											ELSE 
+											BEGIN
+												SET @result = 5 -- Not enough
+											END
+									END
+							END
+                            ELSE IF(@Mode= 'DELETE')
+                            BEGIN
+								SET @CantStock = (select cant  from Stock where (StoreId = (Select StoreId from Cart where  Id =@CartId)) AND ProductId = @ProductId) 
+								SET @CantPrev = (select cant  from CartItem where CartId =@CartId AND ProductId = @ProductId) 			
+                                DELETE FROM CartItem WHERE CartId = @CartId and ProductId = @ProductId
+								UPDATE 
+									Stock
+								SET
+									[Cant] =(@CantPrev + @CantStock)
+								where 
+									StoreId = (select StoreId from Cart where Id =@CartId) and
+									ProductId =@ProductId
+                            END
+                        SELECT @result
+						END
+            ";
+        }
+
         /// <summary>
         /// Gets the constraint.
         /// </summary>
@@ -589,9 +787,20 @@ namespace MiniMartApi.Sqls
             }
             return sql;
         }
-        
-        
 
+        public static string getQueryCart(int Id)
+        {
+            string sql = @"
+                select Cart.*, CartItem.*, CartVoucher.* from Cart 
+                left join CartItem on Cart.Id = CartItem.CartId
+                left join CartVoucher on CartVoucher.CartId = Cart.Id
+            ";
+            if (Id == null)
+            {
+                return String.Format("{0} Where Cart.Id={1}", sql, Id);
+            }
+            return sql;
+        }
     }
 
  

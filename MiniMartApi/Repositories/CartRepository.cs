@@ -174,6 +174,27 @@ namespace MiniMartApi.Repositories
                 throw ex;
             }
         }
+        public async Task<CartItem> DeleteCartItem(CartItem cartItem)
+        {
+            try
+            {
+                using (IDbConnection con = Connection)
+                {
+                    string sQuery = "CartItemFunc";
+                    con.Open();
+                    DynamicParameters param = new DynamicParameters();
+                    param.Add("@Mode", "DELETE");
+                    param.Add("@CartId", cartItem.CartId);
+                    param.Add("@ProductId", cartItem.ProductId);
+                    var result = await con.QueryAsync<CartItem>(sQuery, param, commandType: CommandType.StoredProcedure);
+                    return result.FirstOrDefault();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }
 

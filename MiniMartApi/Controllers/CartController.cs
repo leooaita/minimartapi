@@ -42,6 +42,15 @@ namespace MiniMartApi.Controllers
             cartItem.Cant = cant;
             return await _cartRepository.EditCartItem(cartItem);
         }
+        [HttpPost]
+        [Route("{cartId}/DeleteProduct/{productId}")]
+        public async Task<ActionResult<CartItem>> Delete(int cartId, int productId)
+        {
+            CartItem cartItem = new CartItem();
+            cartItem.CartId = cartId;
+            cartItem.ProductId = productId;
+            return await _cartRepository.DeleteCartItem(cartItem);
+        }
 
 
         [HttpPost]

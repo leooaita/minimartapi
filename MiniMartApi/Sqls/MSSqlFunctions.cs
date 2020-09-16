@@ -45,7 +45,7 @@ namespace MiniMartApi.Sqls
                 ";
         }
         /// <summary>
-        /// Gets the create product category.
+        /// Gets the create product category table sentence.
         /// </summary>
         /// <returns>String</returns>
         public static string getCreateProductCategory()
@@ -77,7 +77,7 @@ namespace MiniMartApi.Sqls
                 ";
         }
         /// <summary>
-        /// Gets the create product category.
+        /// Gets the create product category table sentence
         /// </summary>
         /// <returns>String</returns>
         public static string getCreateProduct()
@@ -134,8 +134,10 @@ namespace MiniMartApi.Sqls
                     select logline from @loglines
                 ";
         }
-
-
+        /// <summary>
+        /// Gets the create stock table sentence.
+        /// </summary>
+        /// <returns></returns>
         public static string getCreateStock()
         {
             return @"
@@ -173,6 +175,10 @@ namespace MiniMartApi.Sqls
                     select logline from @loglines
                 ";
         }
+        /// <summary>
+        /// Gets the create voucher table sentence.
+        /// </summary>
+        /// <returns></returns>
         public static string getCreateVoucher()
         {
             return @"
@@ -277,6 +283,10 @@ namespace MiniMartApi.Sqls
                     select logline from @loglines
                 ";
         }
+        /// <summary>
+        /// Gets the create cart table sentence.
+        /// </summary>
+        /// <returns></returns>
         public static string getCreateCart()
         {
             return @"
@@ -323,8 +333,6 @@ namespace MiniMartApi.Sqls
                 select logline from @loglines
                 ";
         }
-
-
         /// <summary>
         /// Gets SQL Store Create Function Sentence.
         /// </summary>
@@ -583,8 +591,10 @@ namespace MiniMartApi.Sqls
                     END
             ";
         }
-
-
+        /// <summary>
+        /// Gets the function cart.
+        /// </summary>
+        /// <returns></returns>
         public static string getFunctionCart()
         {
             return @"
@@ -648,8 +658,11 @@ namespace MiniMartApi.Sqls
                     END
             ";
         }
-
-
+        /// <summary>
+        /// Gets the function cart item.
+        /// Manage items on product list and Update Stock.
+        /// </summary>
+        /// <returns></returns>
         public static string getFunctionCartItem()
         {
             return @"
@@ -787,17 +800,16 @@ namespace MiniMartApi.Sqls
             }
             return sql;
         }
-
-        public static string getQueryCart(int Id)
+        public static string getQueryCart(int? Id)
         {
             string sql = @"
                 select Cart.*, CartItem.*, CartVoucher.* from Cart 
                 left join CartItem on Cart.Id = CartItem.CartId
                 left join CartVoucher on CartVoucher.CartId = Cart.Id
             ";
-            if (Id == null)
+            if (Id.HasValue)
             {
-                return String.Format("{0} Where Cart.Id={1}", sql, Id);
+                return String.Format("{0} Where Cart.Id={1}", sql, Id.Value);
             }
             return sql;
         }

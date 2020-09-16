@@ -7,9 +7,9 @@ namespace MiniMartApi.Models
     public class StockItem
     {
         public int Id { get; set; }
-        public int productId { get; set; }
+        public int ProductId { get; set; }
+		public int Cant { get; set; }
+        public int StoreId { get; set; }
         public Product product { get; set; }
-		public int cant { get; set; }
-        public int storeId { get; set; }
     }
 }

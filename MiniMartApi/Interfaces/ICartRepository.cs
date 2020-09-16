@@ -12,6 +12,7 @@ namespace MiniMartApi.Interfaces
         Task<Cart> Edit(Cart store);
         Task<Cart> Delete(int id);
         Task<CartItem> EditCartItem(CartItem cartItem);
+        Task<CartItem> DeleteCartItem(CartItem cartItem);
     }
 }
 

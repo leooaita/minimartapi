@@ -186,6 +186,7 @@ namespace MiniMartApi.Repositories
                 throw ex;
             }
         }
+
         /// <summary>
         /// Gets the available products across stores.
         /// </summary>
@@ -193,7 +194,7 @@ namespace MiniMartApi.Repositories
         public async Task<List<ResponseProductStockDTO>> GetAvailableProductsAcrossStores()
         {
             String query = @"
-                        select Product.*, ProductCategory.*,Total from Product 
+                        select Total ,Product.*, ProductCategory.* from Product 
                         join ProductCategory on ProductCategory.Id = Product.ProductCategoryId 
                         join (select Product.Id, sum(Stock.Cant) as Total from Product join Stock on Product.Id = Stock.ProductId group by Product.Id) total
                         on total.id = Product.Id order by ProductCategory.Name, Product.Name
@@ -203,8 +204,8 @@ namespace MiniMartApi.Repositories
                 using (IDbConnection con = Connection)
                 {
                     con.Open();
-                    var result = con.Query<Product, ProductCategory, dynamic, ResponseProductStockDTO>(query,
-                        (product, productCategory, total) =>
+                    var result = con.Query<int,Product, ProductCategory,ResponseProductStockDTO>(query,
+                        (total, product, productCategory) =>
                         {
                             ResponseProductStockDTO responseEntry = new ResponseProductStockDTO();
                             responseEntry.product = product;
@@ -213,7 +214,7 @@ namespace MiniMartApi.Repositories
                             return responseEntry;
                         }, splitOn: "Id"
                         )
-                    .Distinct()
+
                     .ToList();
                     return result.ToList();
                 }

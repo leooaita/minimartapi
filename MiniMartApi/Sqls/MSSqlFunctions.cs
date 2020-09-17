@@ -671,8 +671,8 @@ namespace MiniMartApi.Sqls
 		                    @Id             int = NULL,
                             @ProductId      int =NULL,
                             @CartId         int =null,
-		                    @Cant           int =NULL
-							
+		                    @Cant           int =NULL,
+							@result         int OUTPUT
                     )     
                     AS
 					DECLARE @result int

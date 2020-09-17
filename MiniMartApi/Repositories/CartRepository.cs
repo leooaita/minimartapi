@@ -9,16 +9,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using MiniMartApi.Interfaces;
 using MiniMartApi.Sqls;
+using Microsoft.Extensions.Logging;
+using MiniMartApi.Exceptions;
 
 namespace MiniMartApi.Repositories
 {
     public class CartRepository : ICartRepository
     {
         private readonly IConfiguration _config;
+        private readonly ILogger _logger;
 
-        public CartRepository(IConfiguration config)
+        public CartRepository(IConfiguration config,ILogger<CartRepository> logger)
         {
             _config = config;
+            _logger = logger;
         }
         public IDbConnection Connection
         {
@@ -78,6 +82,7 @@ namespace MiniMartApi.Repositories
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 throw ex;
             }
         }
@@ -101,6 +106,7 @@ namespace MiniMartApi.Repositories
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 throw ex;
             }
 
@@ -111,16 +117,27 @@ namespace MiniMartApi.Repositories
             {
                 using (IDbConnection con = Connection)
                 {
+                    int result=0;
                     DynamicParameters param = new DynamicParameters();
-                    param.Add("@Mode", "GETALL");
+                    param.Add("@Mode", "EDIT");
+                    param.Add("@Id", cartItem.Id);
+                    param.Add("@ProductId", cartItem.ProductId);
+                    param.Add("@Cant",cartItem.Cant);
+                    param.Add("@CartId", cartItem.CartId);
+                    param.Add("@result", result, DbType.Int32, ParameterDirection.Output);
                     string sQuery = "CartItemFunc";
                     con.Open();
-                    var result = await con.QueryAsync<CartItem>(sQuery, param, commandType: CommandType.StoredProcedure);
-                    return result.FirstOrDefault();
+                    var qry = await con.QueryAsync<CartItem>(sQuery, param, commandType: CommandType.StoredProcedure);
+                    if (param.Get<int>("@result") == 5)
+                    {
+                        throw new MiniMartException("There is not enough stock for the product");
+                    }
+                    return qry.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 throw ex;
             }
         }
@@ -146,6 +163,7 @@ namespace MiniMartApi.Repositories
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 throw ex;
             }
         }
@@ -171,6 +189,7 @@ namespace MiniMartApi.Repositories
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 throw ex;
             }
         }
@@ -181,17 +200,24 @@ namespace MiniMartApi.Repositories
                 using (IDbConnection con = Connection)
                 {
                     string sQuery = "CartItemFunc";
+                    int result = 0;
                     con.Open();
                     DynamicParameters param = new DynamicParameters();
                     param.Add("@Mode", "DELETE");
                     param.Add("@CartId", cartItem.CartId);
                     param.Add("@ProductId", cartItem.ProductId);
-                    var result = await con.QueryAsync<CartItem>(sQuery, param, commandType: CommandType.StoredProcedure);
-                    return result.FirstOrDefault();
+                    param.Add("@result", result, DbType.Int32, ParameterDirection.Output);
+                    var qry_ = await con.QueryAsync<CartItem>(sQuery, param, commandType: CommandType.StoredProcedure);
+                    if (param.Get<int>("@result") == 5)
+                    {
+                        throw new MiniMartException("There is not enough stock for the product");
+                    }
+                    return qry_.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 throw ex;
             }
         }

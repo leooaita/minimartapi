@@ -17,5 +17,10 @@ namespace MiniMartApi.Models
             {
                 return (this.Id == other.Id);
             }
+            public Tuple<Product,int> GetTuple()
+            {
+                return new Tuple<Product, int>(this.Product,this.Cant);
+            }
+
     }   
 }

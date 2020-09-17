@@ -66,8 +66,21 @@ namespace MiniMartApi.Repositories
                     string sQuery = "ProductFunc";
                     con.Open();
                     DynamicParameters param = new DynamicParameters();
+                    IDictionary<int, ProductCategory> productCategoryDictionary = new Dictionary<int, ProductCategory>();
                     param.Add("@Mode", "GETALL");
-                    var result = await con.QueryAsync<Product>(sQuery, param, commandType: CommandType.StoredProcedure);
+                    var result = await con.QueryAsync<Product,ProductCategory,Product>(sQuery,
+                        (product, productCategory) => {
+                            ProductCategory productCategoryEntry;
+                            if (!productCategoryDictionary.TryGetValue(productCategory.Id, out productCategoryEntry))
+                            {
+                                productCategoryDictionary.Add(productCategory.Id, productCategory);
+                                productCategoryEntry = productCategory;
+                            }
+                            product.productCategory = productCategoryEntry;
+                            product.ProductCategoryId = productCategoryEntry.Id;
+                            return product;
+                        }
+                        ,param, commandType: CommandType.StoredProcedure);
                     return result.ToList();
                 }
             }

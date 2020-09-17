@@ -475,18 +475,18 @@ namespace MiniMartApi.Sqls
                                 IF(@Mode = 'GETALL')
                             BEGIN
                             SELECT
-                                    Id,[Name],[Price],[ProductCategoryId]
+                                    Product.*, ProductCategory.*
                                 FROM
-                                    Product
+                                    Product join ProductCategory on Product.ProductCategoryId = ProductCategory.Id
                             END
                             ELSE IF(@Mode = 'GETBYID')
                             BEGIN
                                 SELECT
-                                    Id,[Name],[Price],[ProductCategoryId]
+                                    Product.*, ProductCategory.*
                                 FROM
-                                    Product
+                                    Product join ProductCategory on Product.ProductCategoryId = ProductCategory.Id
                                 WHERE
-                                    Id = @Id
+                                    Product.Id = @Id
                             END
                             ELSE IF(@Mode = 'EDIT')
                             BEGIN

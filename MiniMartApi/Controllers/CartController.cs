@@ -23,13 +23,13 @@ namespace MiniMartApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Cart>> GetByID(int id)
         {
-            return await _cartRepository.GetByID(id);
+            return  _cartRepository.GetByID(id);
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Cart>>> GetAll()
         {
-            return await _cartRepository.GetAll();
+            return  _cartRepository.GetAll();
         }
 
         [HttpPost]

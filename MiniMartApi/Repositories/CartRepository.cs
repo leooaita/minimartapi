@@ -31,54 +31,68 @@ namespace MiniMartApi.Repositories
                 return new SqlConnection(_config.GetConnectionString("DefaultConnection"));
             }
         }
+        public IList<Cart> getCarts(Nullable<int> id)
+        {
+            string sql = MSSqlFunctions.getQueryCart(id);
+            using (IDbConnection con = Connection)
+            {
+                con.Open();
+                var cartDictionary = new Dictionary<int, Cart>();
+                var cartItemDictionary = new Dictionary<int, CartItem>();
+                var productDictionary = new Dictionary<int, Product>();
+                var cartVoucherDictionary = new Dictionary<string, Voucher>();
+
+                return con.Query<Cart, CartItem, Product, dynamic, Cart>(
+                    sql,
+                    (cart, cartItem, product, cartVoucher) =>
+                    {
+                        Cart cartEntry;
+                        CartItem cartItemEntry;
+                        Product productEntry;
+                        Voucher cartVoucher_ = VoucherRepository.VoucherConvert(cartVoucher);
+                        Voucher cartVoucherEntry;
+                        if (!cartDictionary.TryGetValue(cart.Id, out cartEntry))
+                        {
+                            cartEntry = cart;
+                            cartDictionary.Add(cartEntry.Id, cartEntry);
+                        }
+                        if (cartVoucher_ != null)
+                        {
+                            if (!cartVoucherDictionary.TryGetValue(cartVoucher_.Id, out cartVoucherEntry))
+                            {
+                                cartVoucherEntry = cartVoucher_;
+                                cartVoucherDictionary.Add(cartVoucherEntry.Id, cartVoucher_);
+                            }
+                            cartEntry.addVoucher(cartVoucherEntry);
+                        }
+                        
+
+                        if (!cartItemDictionary.TryGetValue(cartItem.Id, out cartItemEntry))
+                        {
+                            cartItemEntry = cartItem;
+                            cartItemEntry.Id = cartItem.Id;
+                            cartItemEntry.Product = product;
+                            cartItemDictionary.Add(cartItemEntry.Id, cartItemEntry);
+                            cartEntry.Items.Add(cartItemEntry);
+                        }
+                        
+                        return cartEntry;
+                    },
+                    splitOn: "Id,Id,Id,Id")
+                .Distinct()
+                .ToList();
+            }
+        }
         /// <summary>
         /// Gets the Cart by identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
-        public async Task<Cart> GetByID(int id)
+        public Cart GetByID(int id)
         {
             try
-            { 
-                string sql = MSSqlFunctions.getQueryCart(id);
-                using (IDbConnection con = Connection)
-                {
-                    con.Open();
-                    var cartDictionary = new Dictionary<int, Cart>();
-                    var cartItemDictionary = new Dictionary<int, CartItem>();
-                    var productDictionary = new Dictionary<int, Product>();
-                    var cartVoucherDictionary = new Dictionary<int, CartVoucher>();
-
-                    var list = con.Query<Cart, CartItem, Product, CartVoucher, Cart>(
-                        sql,
-                        (cart, cartItem, product, cartVoucher) =>
-                        {
-                            Cart cartEntry;
-                            CartItem cartItemEntry;
-                            Product productEntry;
-                            CartVoucher cartVoucherEntry;
-
-                            if (!cartDictionary.TryGetValue(cart.Id, out cartEntry))
-                            {
-                                cartEntry = cart;
-                                cartDictionary.Add(cartEntry.Id, cartEntry);
-                            }
-
-                            if (!cartItemDictionary.TryGetValue(cartItem.Id, out cartItemEntry))
-                            {
-                                cartItemEntry = cartItem;
-                                cartItemDictionary.Add(cartItemEntry.Id, cartItemEntry);
-                                cartEntry.Items.Add(cartItemEntry);
-                            }
-
-                            return cartEntry;
-                        },
-                        splitOn: "Id,CartId")
-                    .Distinct()
-                    .ToList();
-
-                    return list.FirstOrDefault();
-                }
+            {
+                return getCarts(id).FirstOrDefault();
             }
             catch (Exception ex)
             {
@@ -90,26 +104,17 @@ namespace MiniMartApi.Repositories
         /// Gets all store from BD.
         /// </summary>
         /// <returns></returns>
-        public async Task<List<Cart>> GetAll()
+        public List<Cart> GetAll()
         {
             try
             {
-                using (IDbConnection con = Connection)
-                {
-                    string sQuery = "CartFunc";
-                    con.Open();
-                    DynamicParameters param = new DynamicParameters();
-                    param.Add("@Mode", "GETALL");
-                    var result = await con.QueryAsync<Cart>(sQuery, param, commandType: CommandType.StoredProcedure);
-                    return result.ToList();
-                }
+                return getCarts(null).ToList();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 throw ex;
             }
-
         }
         public async Task<CartItem> EditCartItem(CartItem cartItem)
         {

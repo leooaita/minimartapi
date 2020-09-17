@@ -34,6 +34,7 @@ namespace MiniMartApi.Repositories
         public static Voucher VoucherConvert(object value)
         {
             var dapperRowProperties = value as IDictionary<string, object>;
+            if (dapperRowProperties == null) return null;
             switch (dapperRowProperties["voucherType"])
             {
                 case 1:

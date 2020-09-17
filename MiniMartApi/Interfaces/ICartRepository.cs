@@ -7,8 +7,8 @@ namespace MiniMartApi.Interfaces
 {
     public interface ICartRepository
     {
-        Task<Cart> GetByID(int id);
-        Task<List<Cart>> GetAll();
+        Cart GetByID(int id);
+        List<Cart> GetAll();
         Task<Cart> Edit(Cart store);
         Task<Cart> Delete(int id);
         Task<CartItem> EditCartItem(CartItem cartItem);

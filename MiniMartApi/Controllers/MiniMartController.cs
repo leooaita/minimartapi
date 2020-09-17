@@ -92,7 +92,7 @@ namespace MiniMartApi.Controllers
             CartItem cartItem = new CartItem();
             try
             {
-                IList<Cart> carts = await _cartRepository.GetAll() ;
+                IList<Cart> carts =  _cartRepository.GetAll() ;
                 Cart cart =carts.FirstOrDefault<Cart>(x =>x.Owner == Owner);
                 if (cart == null) throw new Exception(String.Format("The {0}'s cart  does not exist in the database", Owner));
                 cartItem.Cant = Cant;
@@ -116,7 +116,7 @@ namespace MiniMartApi.Controllers
             CartItem cartItem = new CartItem();
             try
             {
-                IList<Cart> carts = await _cartRepository.GetAll();
+                IList<Cart> carts = _cartRepository.GetAll();
                 Cart cart = carts.FirstOrDefault<Cart>(x => x.Owner == Owner);
                 if (cart == null) throw new Exception(String.Format("The {0}'s cart  does not exist in the database", Owner));
                 cartItem.ProductId = ProductId;
@@ -140,7 +140,7 @@ namespace MiniMartApi.Controllers
             Cart cart;
             try
             {
-                IList<Cart> carts = await _cartRepository.GetAll();
+                IList<Cart> carts =  _cartRepository.GetAll();
                 cart = carts.FirstOrDefault<Cart>(x => x.Owner == Owner);
                 if (cart == null) throw new Exception(String.Format("The {0}'s cart  does not exist in the database", Owner));
 

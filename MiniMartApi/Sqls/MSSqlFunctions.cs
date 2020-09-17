@@ -325,7 +325,7 @@ namespace MiniMartApi.Sqls
                         	CREATE TABLE[dbo].[CartVoucher]
                             (
                                 [Id] int IDENTITY(1,1) NOT NULL,
-                                [VoucherId] int NOT NULL,
+                                [VoucherId] varchar(30) NOT NULL, 
                                 [CartId] int not null
                             );
                         insert into @loglines (logline) values ('CartVoucher table created successfully')
@@ -803,9 +803,11 @@ namespace MiniMartApi.Sqls
         public static string getQueryCart(int? Id)
         {
             string sql = @"
-                select Cart.*, CartItem.*, CartVoucher.* from Cart 
+                select Cart.*, CartItem.*,Product.*, Voucher.* from Cart 
                 left join CartItem on Cart.Id = CartItem.CartId
+                left join Product on Product.Id = CartItem.ProductId
                 left join CartVoucher on CartVoucher.CartId = Cart.Id
+                left join Voucher on Voucher.Id = CartVoucher.VoucherId 
             ";
             if (Id.HasValue)
             {

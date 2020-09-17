@@ -1,6 +1,7 @@
 ﻿using MiniMartApi.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 namespace MiniMartApi.Models
 {
@@ -23,6 +24,18 @@ namespace MiniMartApi.Models
         public bool Equals(Cart other)
         {
             return (this.Id == other.Id);
+        }
+        /// <summary>
+        /// Adds the voucher.
+        /// Only if doesnt exist.
+        /// </summary>
+        /// <param name="cv">The voucher.</param>
+        public void addVoucher(Voucher voucher)
+        {
+            if (!this.Vouchers.Any(c => c.Id == voucher.Id))
+            {
+                this.Vouchers.Add(voucher);
+            }
         }
     }
 }

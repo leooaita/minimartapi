@@ -144,7 +144,7 @@ namespace MiniMartApi.Controllers
                 cart = carts.FirstOrDefault<Cart>(x => x.Owner == Owner);
                 if (cart == null) throw new Exception(String.Format("The {0}'s cart  does not exist in the database", Owner));
 
-                Voucher voucher = await _voucherRepository.GetByID(VoucherId);
+                Voucher voucher =  await _voucherRepository.GetByID(VoucherId);
                 IList<Tuple<Product, int>> listProducts = new List<Tuple<Product, int>>();
                 decimal total = 0;
                 foreach (CartItem cartItem in cart.Items)

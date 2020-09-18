@@ -218,6 +218,25 @@ namespace MiniMartApi.Sqls
                         );
                         insert into @loglines (logline) values ('Voucher Week Day table created successfully')
                     end
+
+                if not exists 
+                    (Select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'Voucher_Store')
+                    Begin
+						create table [dbo].[Voucher_Store]
+						(
+							VoucherId varchar(30) not null,
+							StoreId int not null
+						)
+						-- Coco Bay
+						insert into [dbo].[Voucher_Store] (VoucherId,StoreId) values ('COCO1V1F8XOG1MZZ',2);
+						insert into [dbo].[Voucher_Store] (VoucherId,StoreId) values ('COCOKCUD0Z9LUKBN',2);
+						-- COCO Mall
+						insert into [dbo].[Voucher_Store] (VoucherId,StoreId) values ('COCOG730CNSG8ZVX',3);
+						-- COCO Downtown
+						insert into [dbo].[Voucher_Store] (VoucherId,StoreId) values ('COCO2O1USLC6QR22',1);
+						insert into [dbo].[Voucher_Store] (VoucherId,StoreId) values ('COCO0FLEQ287CC05',1);
+                        insert into @loglines (logline) values ('Voucher_Store table created successfully')
+                    end
                 if not exists 
                     (Select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'voucher_productcategory')
                     Begin
@@ -242,10 +261,11 @@ namespace MiniMartApi.Sqls
 	                        valid_to_month  int,
 	                        valid_to_year  int,
                             valid_day_week  varchar(14),
-	                        voucherType  int
+	                        voucherType  int,
+                            applyPerCantUnit int
                         );
 				        insert into @loglines (logline) values ('Voucher table created successfully')
-
+                        -- Voucher COCO1V1F8XOG1MZZ
                         INSERT INTO [dbo].[voucher]
                                    ([Id]
                                    ,[onUpTo]
@@ -274,6 +294,125 @@ namespace MiniMartApi.Sqls
                         insert into voucher_productcategory(voucherId,productcategoryId) values ('COCO1V1F8XOG1MZZ',3)
                         insert into voucher_week_day(voucherId,week_day) values ('COCO1V1F8XOG1MZZ',4)
 
+                        -- Voucher COCOKCUD0Z9LUKBN
+                        INSERT INTO [dbo].[voucher]
+                                   ([Id]
+                                   ,[onUpTo]
+		                           ,[Percent]
+                                   ,[valid_from_day]
+                                   ,[valid_from_month]
+                                   ,[valid_from_year]
+                                   ,[valid_to_day]
+                                   ,[valid_to_month]
+                                   ,[valid_to_year]
+                                   ,[valid_day_week]
+                                   ,[voucherType])
+                             VALUES
+                                   ('COCOKCUD0Z9LUKBN' -- Id
+			                           ,6 -- upTo
+			                           ,0 -- percent
+			                           ,24 -- valid_from_day
+			                           ,1 -- valid_from_month
+			                           ,null -- valid_from_year
+			                           ,6 -- valid_to_day
+			                           ,2 -- valid_to_month
+			                           ,null -- valid_to_year
+                                       ,''
+			                           ,3 --voucherType Discount
+		                           )
+                        insert into [dbo].[Voucher_product] (voucherId,productId) values ('COCOKCUD0Z9LUKBN',8) -- Windmill Cookies
+                        -- Voucher COCOG730CNSG8ZVX
+                        INSERT INTO [dbo].[voucher]
+                                   ([Id]
+                                   ,[onUpTo]
+		                           ,[Percent]
+                                   ,[valid_from_day]
+                                   ,[valid_from_month]
+                                   ,[valid_from_year]
+                                   ,[valid_to_day]
+                                   ,[valid_to_month]
+                                   ,[valid_to_year]
+                                   ,[valid_day_week]
+                                   ,[voucherType])
+                             VALUES
+                                   ('COCOG730CNSG8ZVX' -- Id
+			                           ,0 -- upTo
+			                           ,10 -- percent
+			                           ,31 -- valid_from_day
+			                           ,1 -- valid_from_month
+			                           ,null -- valid_from_year
+			                           ,9 -- valid_to_day
+			                           ,2 -- valid_to_month
+			                           ,null -- valid_to_year
+                                       ,''
+			                           ,1 --voucherType Discount
+		                           )
+
+                            insert into voucher_productcategory(voucherId,productcategoryId) values ('COCOG730CNSG8ZVX',4) --Bathroom
+                            insert into voucher_productcategory(voucherId,productcategoryId) values ('COCOG730CNSG8ZVX',1) --Sodas
+                            -- COCO2O1USLC6QR22
+                            INSERT INTO [dbo].[voucher]
+                                   ([Id]
+                                   ,[onUpTo]
+		                           ,[Percent]
+                                   ,[valid_from_day]
+                                   ,[valid_from_month]
+                                   ,[valid_from_year]
+                                   ,[valid_to_day]
+                                   ,[valid_to_month]
+                                   ,[valid_to_year]
+                                   ,[valid_day_week]
+                                   ,[voucherType]
+								   ,[applyPerCantUnit]
+								   )
+                             VALUES
+                                   ('COCO2O1USLC6QR22' -- Id
+			                           ,0 -- upTo
+			                           ,30 -- percent
+			                           ,null -- valid_from_day
+			                           ,2 -- valid_from_month
+			                           ,null -- valid_from_year
+			                           ,null -- valid_to_day
+			                           ,2 -- valid_to_month
+			                           ,null -- valid_to_year
+                                       ,''
+			                           ,2 --voucherType Discount
+									   ,2
+		                           )
+                        insert into [dbo].[Voucher_product] (voucherId,productId) values ('COCO2O1USLC6QR22',5)  -- Slurm
+					    insert into [dbo].[Voucher_product] (voucherId,productId) values ('COCO2O1USLC6QR22',3)  -- Nuke-Cola
+					    insert into [dbo].[Voucher_product] (voucherId,productId) values ('COCO2O1USLC6QR22',6)  -- Diet Slurm
+
+                        -- COCO0FLEQ287CC05
+                        INSERT INTO [dbo].[voucher]
+                                   ([Id]
+                                   ,[onUpTo]
+		                           ,[Percent]
+                                   ,[valid_from_day]
+                                   ,[valid_from_month]
+                                   ,[valid_from_year]
+                                   ,[valid_to_day]
+                                   ,[valid_to_month]
+                                   ,[valid_to_year]
+                                   ,[valid_day_week]
+                                   ,[voucherType]
+								   ,[applyPerCantUnit]
+								   )
+                             VALUES
+                                   ('COCO0FLEQ287CC05' -- Id
+			                           ,0 -- upTo
+			                           ,50 -- percent
+			                           ,1 -- valid_from_day
+			                           ,2 -- valid_from_month
+			                           ,null -- valid_from_year
+			                           ,15 -- valid_to_day
+			                           ,2 -- valid_to_month
+			                           ,null -- valid_to_year
+                                       ,'1'
+			                           ,2 --voucherType Discount
+									   ,2
+		                           )
+                        insert into [dbo].[Voucher_product] (voucherId,productId) values ('COCO0FLEQ287CC05',23)  -- Slurm
                         insert into @loglines (logline) values ('Information of voucher initialized correctly')                    
                     End
                     Else
@@ -675,7 +814,6 @@ namespace MiniMartApi.Sqls
 							@result         int OUTPUT
                     )     
                     AS
-					DECLARE @result int
 					DECLARE @CantStock INT
 					DECLARE @CantBefore INT
 					DECLARE @CantPrev INT
@@ -794,18 +932,19 @@ namespace MiniMartApi.Sqls
                     left
                         join ProductCategory on ProductCategory.Id = voucher_productcategory.productcategoryId
             ";
-            if (Id == null)
+            if (!String.IsNullOrEmpty(Id))
             {
-                return String.Format("{0} Where Voucher.Id={1}", sql, Id);
+                return String.Format("{0} Where Voucher.Id='{1}'", sql, Id);
             }
             return sql;
         }
         public static string getQueryCart(int? Id)
         {
             string sql = @"
-                select Cart.*, CartItem.*,Product.*, Voucher.* from Cart 
+                select Cart.*, CartItem.*,Product.*,ProductCategory.*, Voucher.* from Cart 
                 left join CartItem on Cart.Id = CartItem.CartId
                 left join Product on Product.Id = CartItem.ProductId
+                left join ProductCategory on ProductCategory.Id = Product.ProductCategoryId
                 left join CartVoucher on CartVoucher.CartId = Cart.Id
                 left join Voucher on Voucher.Id = CartVoucher.VoucherId 
             ";

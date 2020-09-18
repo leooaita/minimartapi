@@ -107,6 +107,7 @@ namespace MiniMartTest
                     voucherResult.valid_from_month = (int)Month.January;
                     voucherResult.valid_to_day = 6;
                     voucherResult.valid_to_month = (int)Month.February;
+                    voucherResult.validProducts.Add(getMockProduct(8, "Windmill Cookies", 100, ProductCategoryType.Food));
                     break;
                  case "COCOG730CNSG8ZVX":
                     // 10% off on Bathroom and Sodas, from Jan 31th to Feb 9th
@@ -118,7 +119,7 @@ namespace MiniMartTest
                     voucherResult.valid_from_month = (int)Month.January;
                     voucherResult.valid_to_day = 9;
                     voucherResult.valid_to_month = (int)Month.February;
-                    // Valid Category (Cleaning)
+                    // Valid Category (Bathroom,Sodas)
                     voucherResult.validCategorys.Add(getMockProductCategory(ProductCategoryType.Bathroom));
                     voucherResult.validCategorys.Add(getMockProductCategory(ProductCategoryType.Sodas));
                     break;

@@ -40,45 +40,71 @@ namespace MiniMartApi.Repositories
                 var cartDictionary = new Dictionary<int, Cart>();
                 var cartItemDictionary = new Dictionary<int, CartItem>();
                 var productDictionary = new Dictionary<int, Product>();
+                var productCategoryDictionary = new Dictionary<int, ProductCategory>();
                 var cartVoucherDictionary = new Dictionary<string, Voucher>();
 
-                return con.Query<Cart, CartItem, Product, dynamic, Cart>(
+                return con.Query<Cart, CartItem, Product, ProductCategory, dynamic, Cart>(
                     sql,
-                    (cart, cartItem, product, cartVoucher) =>
+                    (cart, cartItem, product, productCategory, cartVoucher) =>
                     {
-                        Cart cartEntry;
-                        CartItem cartItemEntry;
-                        Product productEntry;
-                        Voucher cartVoucher_ = VoucherRepository.VoucherConvert(cartVoucher);
-                        Voucher cartVoucherEntry;
-                        if (!cartDictionary.TryGetValue(cart.Id, out cartEntry))
-                        {
-                            cartEntry = cart;
-                            cartDictionary.Add(cartEntry.Id, cartEntry);
-                        }
-                        if (cartVoucher_ != null)
-                        {
-                            if (!cartVoucherDictionary.TryGetValue(cartVoucher_.Id, out cartVoucherEntry))
-                            {
-                                cartVoucherEntry = cartVoucher_;
-                                cartVoucherDictionary.Add(cartVoucherEntry.Id, cartVoucher_);
-                            }
-                            cartEntry.addVoucher(cartVoucherEntry);
-                        }
-                        
+                            Cart cartEntry;
+                            CartItem cartItemEntry=null;
+                            Product productEntry;
+                            ProductCategory productCategoryEntry;
 
-                        if (!cartItemDictionary.TryGetValue(cartItem.Id, out cartItemEntry))
-                        {
-                            cartItemEntry = cartItem;
-                            cartItemEntry.Id = cartItem.Id;
-                            cartItemEntry.Product = product;
-                            cartItemDictionary.Add(cartItemEntry.Id, cartItemEntry);
-                            cartEntry.Items.Add(cartItemEntry);
-                        }
-                        
-                        return cartEntry;
+                            if (cartItem != null)
+                            {
+                                if (!productCategoryDictionary.TryGetValue(productCategory.Id, out productCategoryEntry))
+                                {
+                                    productCategoryEntry = productCategory;
+                                    productCategoryDictionary.Add(productCategoryEntry.Id, productCategoryEntry);
+                                }
+                                if (!productDictionary.TryGetValue(product.Id, out productEntry))
+                                {
+                                    productEntry = product;
+                                    productDictionary.Add(productEntry.Id, productEntry);
+                                }
+                                productEntry.productCategory = productCategoryEntry;
+                                if (cartItem != null)
+                                {
+                                    if (!cartItemDictionary.TryGetValue(cartItem.Id, out cartItemEntry))
+                                    {
+                                        cartItemEntry = cartItem;
+                                        cartItemEntry.Id = cartItem.Id;
+                                        cartItemEntry.Product = productEntry;
+                                        cartItemDictionary.Add(cartItemEntry.Id, cartItemEntry);
+                                    }
+                                }
+                            }
+                            Voucher cartVoucher_ = VoucherRepository.VoucherConvert(cartVoucher);
+                            Voucher cartVoucherEntry;
+
+                            if (!cartDictionary.TryGetValue(cart.Id, out cartEntry))
+                            {
+                                cartEntry = cart;
+                                cartDictionary.Add(cartEntry.Id, cartEntry);
+                            }
+
+                            if (!cartDictionary.TryGetValue(cart.Id, out cartEntry))
+                            {
+                                cartEntry = cart;
+                                cartDictionary.Add(cartEntry.Id, cartEntry);
+                            }
+                            if (cartVoucher_ != null)
+                            {
+                                if (!cartVoucherDictionary.TryGetValue(cartVoucher_.Id, out cartVoucherEntry))
+                                {
+                                    cartVoucherEntry = cartVoucher_;
+                                    cartVoucherDictionary.Add(cartVoucherEntry.Id, cartVoucher_);
+                                }
+                                cartEntry.addVoucher(cartVoucherEntry);
+                            }
+                            if (cartItemEntry != null) { 
+                                cartEntry.Items.Add(cartItemEntry);
+                            }
+                            return cartEntry;
                     },
-                    splitOn: "Id,Id,Id,Id")
+                    splitOn: "Id,Id,Id,Id,Id")
                 .Distinct()
                 .ToList();
             }

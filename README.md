@@ -33,14 +33,15 @@ The system should:
     - **curl -X GET "https://{url}:{port}/api/Setup" -H "accept: text/plain"**
 - Be able to query available stores at a certain time in the day and return only those that
 apply: 
-    - **curl -X GET "https://{url}:{port}/api/MiniMart/GetStoresBy?hourAvailaBle=8" -H "accept: text/plain"**
+    - **curl -X GET "https://{url}:{port}/api/MiniMart/GetStoresByTime?isAvailableHour=8" -H "accept: text/plain"**
 - Be able to query all available products, across stores, with their total stock.
     - **curl -X GET "https://{url}:{port}/api/MiniMart/GetAvailableProductsAcrossStores" -H "accept: text/plain"**
 - Be able to query if a product is available, at a certain store, and return that product's
 info
     - Example: Get Sprute,  available almost one unit: **curl -X GET "https://{url}:{port}/api/MiniMart/GetProductsBy?productName=Sprute&cant=1" -H "accept: text/plain"**
 - Be able to query available products for a particular store
-    - Example: Get Sprute in COCO Downtown, available almost one unit: **curl -X GET "https://{url}:{port}/api/MiniMart/GetProductsBy?productName=Sprute&storeName=COCO%20Downtown&cant=1" -H "accept: text/plain"**
+    - Option 1: Get available products in store id 1: curl -X GET "https://{uri}:{port}:44305/api/Store/1/Products" -H "accept: text/plain"
+    - Option 2: Example: Get Sprute in COCO Downtown, available almost one unit: **curl -X GET "https://{url}:{port}/api/MiniMart/GetProductsBy?productName=Sprute&storeName=COCO%20Downtown&cant=1" -H "accept: text/plain"**
 - Be able to manage a simple virtual cart (add/remove from it). It cannot allow to add a
 product that has NO stock
     - Create Cart with unique defined User Tag (Owner/Person) 

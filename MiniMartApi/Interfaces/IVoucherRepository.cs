@@ -12,5 +12,6 @@ namespace MiniMartApi.Interfaces
         Task<List<Voucher>> GetAll();
         Task<VoucherDiscountPercentPerUnit> Edit(VoucherDiscountPercentPerUnit voucher);
         Task<Voucher> Delete(int id);
+        Task<IList<VoucherStore>> validVouchers(int idStore);
     }
 }

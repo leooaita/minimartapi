@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using MiniMartApi.Interfaces;
 using MiniMartApi.Sqls;
 using MiniMart.Models;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Logging;
 
 namespace MiniMartApi.Repositories
@@ -207,6 +206,27 @@ namespace MiniMartApi.Repositories
                     param.Add("@Id", id);
                     var result = await con.QueryAsync<Voucher>(sQuery, param, commandType: CommandType.StoredProcedure);
                     return result.FirstOrDefault();
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex is ConstraintException)
+                {
+                    throw new Exception("There are associated objects with the Category, you cannot execute this action");
+                }
+                throw ex;
+            }
+        }
+        public async Task<IList<VoucherStore>> validVouchers(int idStore)
+        {
+            try
+            {
+                using (IDbConnection con = Connection)
+                {
+                    string sQuery = String.Format("select * from Voucher_Store where StoreId = {0}", idStore);
+        con.Open();
+                    var result = await con.QueryAsync<VoucherStore>(sQuery);
+                    return result.ToList();
                 }
             }
             catch (Exception ex)

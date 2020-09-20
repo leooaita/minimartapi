@@ -439,8 +439,8 @@ namespace MiniMartApi.Sqls
                                 [StoreId] int NOT NULL,
                                 [Created] date not null,
 		                        [Owner] varchar(100),
-		                        [Total] decimal,
-		                        [Total_discount] decimal
+		                        [Total] decimal(10,2),
+		                        [Total_discount] decimal(10,2)
                             );
                         insert into @loglines (logline) values ('Cart table created successfully')
                     end
@@ -453,8 +453,8 @@ namespace MiniMartApi.Sqls
                                 [ProductId] int NOT NULL, 
                                 [CartId] int not null,
 		                        [Cant] int NOT NULL,
-		                        [Total] decimal,
-		                        [Total_discount] decimal,
+		                        [Total] decimal(10,2),
+		                        [Total_discount] decimal(10,2),
                             );
                         insert into @loglines (logline) values ('CartItem table created successfully')
                     end
@@ -896,20 +896,136 @@ namespace MiniMartApi.Sqls
             // Creating primary key on[Id] in table 'Product'
             // Creating primary key on[Id] in table 'ProductCategory'
             // Creating foreign key on[SolicitudDestinoId] in table 'Product'
-            return @"-- Creating primary key on [Id] in table 'Product'
-                    ALTER TABLE [dbo].[Product]
-                    ADD CONSTRAINT [PK_Product]
-                        PRIMARY KEY NONCLUSTERED ([Id] ASC);
-                    -- Creating primary key on [Id] in table 'ProductCategory'
-                    ALTER TABLE [dbo].[ProductCategory]
-                    ADD CONSTRAINT [PK_ProductCategory]
-                        PRIMARY KEY NONCLUSTERED ([Id] ASC);
-                    ALTER TABLE [dbo].[Product]
-                    ADD CONSTRAINT [FK_ProductCategoryProduct]
-	                    FOREIGN KEY ([ProductCategoryId])
-	                    REFERENCES [dbo].[ProductCategory]
-		                    ([Id])
-	                    ON DELETE NO ACTION ON UPDATE NO ACTION;
+            return @"	ALTER TABLE [dbo].[Product] ADD CONSTRAINT [PK_Product] pRIMARY KEY NONCLUSTERED ([Id] ASC);
+                -- Creating primary key on [Id] in table 'ProductCategory'
+                ALTER TABLE [dbo].[ProductCategory]
+                ADD CONSTRAINT [PK_ProductCategory]
+                    PRIMARY KEY NONCLUSTERED ([Id] ASC);
+                ALTER TABLE [dbo].[Product]
+                ADD CONSTRAINT [FK_ProductCategoryProduct]
+	                FOREIGN KEY ([ProductCategoryId])
+	                REFERENCES [dbo].[ProductCategory]
+		                ([Id])
+	                ON DELETE NO ACTION ON UPDATE NO ACTION;
+                ALTER TABLE [dbo].[Cart]
+	                ADD CONSTRAINT [PK_Cart]
+		                PRIMARY KEY NONCLUSTERED ([Id] ASC);
+                ALTER TABLE [dbo].[CartItem]
+	                ADD CONSTRAINT [PK_CartItem]
+		                PRIMARY KEY NONCLUSTERED ([Id] ASC);
+                ALTER TABLE [dbo].[CartVoucher]
+	                ADD CONSTRAINT [PK_CartVoucher]
+		                PRIMARY KEY NONCLUSTERED ([Id] ASC);
+                ALTER TABLE [dbo].[Stock]
+	                ADD CONSTRAINT [PK_Stock]
+		                PRIMARY KEY NONCLUSTERED ([Id] ASC);
+                ALTER TABLE [dbo].[Store]
+	                ADD CONSTRAINT [PK_Store]
+		                PRIMARY KEY NONCLUSTERED ([Id] ASC);
+                ALTER TABLE [dbo].[Voucher]
+	                ADD CONSTRAINT [PK_Voucher]
+		                PRIMARY KEY NONCLUSTERED ([Id] ASC);
+                ALTER TABLE [dbo].[Voucher_Product]
+	                ADD CONSTRAINT [PK_Voucher_Product]
+		                PRIMARY KEY NONCLUSTERED (voucherId,productId);
+                ALTER TABLE [dbo].[Voucher_ProductCategory]
+	                ADD CONSTRAINT [PK_Voucher_ProductCategory]
+		                PRIMARY KEY NONCLUSTERED (voucherId,productCategoryId);
+                ALTER TABLE [dbo].[Voucher_Store]
+	                ADD CONSTRAINT [PK_Voucher_Store]
+		                PRIMARY KEY NONCLUSTERED (VoucherId,StoreId);
+                ALTER TABLE [dbo].[Voucher_Type]
+	                ADD CONSTRAINT [PK_Voucher_Type]
+		                PRIMARY KEY NONCLUSTERED ([Id] ASC);
+                alter table [dbo].[Cart]
+                ADD CONSTRAINT [FK_CartStore]
+	                FOREIGN KEY ([StoreId])
+	                REFERENCES [dbo].[Store]
+		                ([Id])
+	                ON DELETE NO ACTION ON UPDATE NO ACTION;
+                alter table [dbo].[CartItem]
+                ADD CONSTRAINT [FK_CartItemProduct]
+	                FOREIGN KEY ([ProductId])
+	                REFERENCES [dbo].[Product]
+		                ([Id])
+	                ON DELETE NO ACTION ON UPDATE NO ACTION;
+                alter table [dbo].[CartItem]
+                ADD CONSTRAINT [FK_CartItemCart]
+	                FOREIGN KEY ([CartId])
+	                REFERENCES [dbo].[Cart]
+		                ([Id])
+	                ON DELETE NO ACTION ON UPDATE NO ACTION;
+                alter table [dbo].[CartVoucher]
+                ADD CONSTRAINT [FK_CartVoucherVoucher]
+	                FOREIGN KEY ([VoucherId])
+	                REFERENCES [dbo].[Voucher]
+		                ([Id])
+	                ON DELETE NO ACTION ON UPDATE NO ACTION;
+                alter table [dbo].[CartVoucher]
+                ADD CONSTRAINT [FK_CartVoucherCart]
+	                FOREIGN KEY ([CartId])
+	                REFERENCES [dbo].[Cart]
+		                ([Id])
+	                ON DELETE NO ACTION ON UPDATE NO ACTION;
+                alter table [dbo].[Stock]
+                ADD CONSTRAINT [FK_StockProduct]
+	                FOREIGN KEY ([ProductId])
+	                REFERENCES [dbo].[Product]
+		                ([Id])
+	                ON DELETE NO ACTION ON UPDATE NO ACTION;
+                alter table [dbo].[Stock]
+                ADD CONSTRAINT [FK_StockStore]
+	                FOREIGN KEY ([StoreId])
+	                REFERENCES [dbo].[Store]
+		                ([Id])
+	                ON DELETE NO ACTION ON UPDATE NO ACTION;
+                alter table [dbo].[Voucher_ProductCategory]
+                ADD CONSTRAINT [FK_VoucherProductCategoryVoucher]
+	                FOREIGN KEY ([VoucherId])
+	                REFERENCES [dbo].[Voucher]
+		                ([Id])
+	                ON DELETE NO ACTION ON UPDATE NO ACTION;
+                alter table [dbo].[Voucher_ProductCategory]
+                ADD CONSTRAINT [FK_VoucherProductCategoryProductCategory]
+	                FOREIGN KEY ([ProductCategoryId])
+	                REFERENCES [dbo].[ProductCategory]
+		                ([Id])
+	                ON DELETE NO ACTION ON UPDATE NO ACTION;
+                alter table [dbo].[Voucher_Store]
+                ADD CONSTRAINT [FK_VoucherStoreStore]
+	                FOREIGN KEY ([StoreId])
+	                REFERENCES [dbo].[Store]
+		                ([Id])
+	                ON DELETE NO ACTION ON UPDATE NO ACTION;
+                alter table [dbo].[Voucher_Store]
+                ADD CONSTRAINT [FK_VoucherStoreVoucher]
+	                FOREIGN KEY ([VoucherId])
+	                REFERENCES [dbo].[Voucher]
+		                ([Id])
+	                ON DELETE NO ACTION ON UPDATE NO ACTION;
+	
+                
+                alter table [dbo].[Voucher_Product]
+                ADD CONSTRAINT [FK_VoucherProductProduct]
+	                FOREIGN KEY ([ProductId])
+	                REFERENCES [dbo].[Product]
+		                ([Id])
+	                ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+                alter table [dbo].[Voucher_Product]
+                ADD CONSTRAINT [FK_VoucherProductVoucher]
+	                FOREIGN KEY ([VoucherId])
+	                REFERENCES [dbo].[Voucher]
+		                ([Id])
+	                ON DELETE NO ACTION ON UPDATE NO ACTION;
+                
+          
+                alter table [dbo].[Voucher]
+                ADD CONSTRAINT [FK_VoucherType]
+					FOREIGN KEY ([voucherType])
+					REFERENCES [dbo].[Voucher_type]
+						([Id])
+				ON DELETE NO ACTION ON UPDATE NO ACTION;
                     ";
         }
         public static string getQueryStore(int? Id)

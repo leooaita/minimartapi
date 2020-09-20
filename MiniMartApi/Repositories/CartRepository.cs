@@ -84,12 +84,6 @@ namespace MiniMartApi.Repositories
                                 cartEntry = cart;
                                 cartDictionary.Add(cartEntry.Id, cartEntry);
                             }
-
-                            if (!cartDictionary.TryGetValue(cart.Id, out cartEntry))
-                            {
-                                cartEntry = cart;
-                                cartDictionary.Add(cartEntry.Id, cartEntry);
-                            }
                             if (cartVoucher_ != null)
                             {
                                 if (!cartVoucherDictionary.TryGetValue(cartVoucher_.Id, out cartVoucherEntry))
@@ -249,6 +243,10 @@ namespace MiniMartApi.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
+                if (ex is ConstraintException)
+                {
+                    throw new Exception("There are associated objects with the Category, you cannot execute this action");
+                }
                 throw ex;
             }
         }

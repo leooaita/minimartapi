@@ -48,6 +48,12 @@ namespace MiniMartApi.Controllers
         {
             return await _storeRepository.Delete(id);
         }
+        [HttpGet("{id}/Products")]
+        public async Task<ActionResult<IList<Product>>> StoreProducts(int id)
+        {
+            Store store = await _storeRepository.GetByID(id);
+            return store.Stock.Where<StockItem>(c=>c.Cant>0). Select<StockItem,Product>(stockItem=>stockItem.product).ToList();
+        }
     }
 
 }

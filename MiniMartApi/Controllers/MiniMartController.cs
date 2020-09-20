@@ -109,6 +109,18 @@ namespace MiniMartApi.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        /// <summary>
+        /// Store valids vouchers.
+        /// Return Store Voucher list.
+        /// </summary>
+        /// <param name="idStore">The identifier store.</param>
+        /// <returns></returns>
+        /// 
+        [HttpPost("ValidVouchers/{StoreId}")]
+        public Task<IList<VoucherStore>> validVouchers(int StoreId)
+        {
+            return _voucherRepository.validVouchers(StoreId);
+        }
         //
         [HttpPost("CartFor/{Owner}/DeleteProduct/{ProductId}")]
         public async Task<ActionResult<CartItem>> DeleteProduct(int ProductId, String Owner)
@@ -133,6 +145,7 @@ namespace MiniMartApi.Controllers
             }
             return await _cartRepository.DeleteCartItem(cartItem);
         }
+        
 
         [HttpPost("CartFor/{Owner}/ApplyVoucher/{VoucherId}/Date/{date_voucher}")]
         public async Task<ActionResult<Cart>> ApplyVoucher(String Owner, String VoucherId, DateTime date_voucher)
@@ -144,18 +157,25 @@ namespace MiniMartApi.Controllers
                 cart = carts.FirstOrDefault<Cart>(x => x.Owner == Owner);
                 if (cart == null) throw new Exception(String.Format("The {0}'s cart  does not exist in the database", Owner));
 
-                Voucher voucher =  await _voucherRepository.GetByID(VoucherId);
-                IList<Tuple<Product, int>> listProducts = new List<Tuple<Product, int>>();
-                decimal total = 0;
-                foreach (CartItem cartItem in cart.Items)
+                IList<VoucherStore> voucherValids = await _voucherRepository.validVouchers(cart.StoreId);
+                if (voucherValids.Any(c=>c.VoucherId == VoucherId)) 
                 {
-                    total = total + cartItem.Product.Price * cartItem.Cant;
-                    listProducts.Add(cartItem.GetTuple());
+                    Voucher voucher = await _voucherRepository.GetByID(VoucherId);
+                    IList<Tuple<Product, int>> listProducts = new List<Tuple<Product, int>>();
+                    decimal total = 0;
+                    foreach (CartItem cartItem in cart.Items)
+                    {
+                        total = total + cartItem.Product.Price * cartItem.Cant;
+                        listProducts.Add(cartItem.GetTuple());
+                    }
+                    decimal discount = voucher.Calculate(listProducts, date_voucher);
+                    cart.Total = total;
+                    cart.Total_discount = total - discount;
+                    return cart;
+                } else
+                {
+                    return BadRequest(String.Format("Voucher {0} invalid in Store {1}",VoucherId,cart.StoreId));
                 }
-                decimal discount = voucher.Calculate(listProducts, date_voucher);
-                cart.Total_discount = total;
-                cart.Total_discount = total - discount;
-                return cart;
             }
             catch (Exception ex)
             {

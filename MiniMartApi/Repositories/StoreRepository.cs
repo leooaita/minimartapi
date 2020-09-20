@@ -204,7 +204,7 @@ namespace MiniMartApi.Repositories
             filter.Add(" Stock.Cant > 0 ");
 
             String where = String.Join(" AND ", filter);
-            String query = @"select Product.*, ProductCategory.*, Stock.* from Product                                 
+            String query = @"select Store.*,Product.*, ProductCategory.*, Stock.* from Product                                 
                                 join ProductCategory on Product.ProductCategoryId = ProductCategory.Id
                                 join Stock on Stock.ProductId = Product.Id                                
                                 join Store on Store.Id = Stock.StoreId
@@ -215,7 +215,37 @@ namespace MiniMartApi.Repositories
                 using (IDbConnection con = Connection)
                 {
                     con.Open();
-                    var result = await con.QueryAsync<Store>(query_result);
+
+                    IDictionary<int, Store> storeDictionary = new Dictionary<int,Store>();
+                    IDictionary<int, Product> productDictionary = new Dictionary<int, Product>();
+                    IDictionary<int, ProductCategory> productCategoryRepository = new Dictionary<int, ProductCategory>();
+
+                    var result =  con.Query<Store, StockItem, Product, ProductCategory, Store>(query_result,
+                        (store,stock,product,productCategory)=>{
+                            
+                            Store storeEntry;
+                            Product productEntry;
+                            if (!storeDictionary.TryGetValue(store.Id, out storeEntry))
+                            {
+                                storeEntry = store;
+                                storeDictionary.Add(storeEntry.Id, storeEntry);
+                            }
+                            if (product != null)
+                            {
+                                if (!productDictionary.TryGetValue(product.Id, out productEntry))
+                                {
+                                    productEntry = product;
+                                    product.productCategory = productCategory;
+                                    productDictionary.Add(productEntry.Id, productEntry);
+                                }
+                                stock.product = product;
+                                storeEntry.Stock.Add(stock);
+                            }
+                            
+                            return storeEntry;
+                        }, splitOn: "Id,Id,Id,Id")
+                        .Distinct()
+                        .ToList();
                     return result.ToList();
                 }
             }

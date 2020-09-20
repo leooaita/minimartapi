@@ -119,6 +119,10 @@ namespace MiniMartApi.Repositories
             }
             catch (Exception ex)
             {
+                if (ex is ConstraintException)
+                {
+                    throw new Exception("There are associated objects with the Category, you cannot execute this action");
+                }
                 throw ex;
             }
         }

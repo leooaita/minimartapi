@@ -145,8 +145,14 @@ namespace MiniMartApi.Controllers
             }
             return await _cartRepository.DeleteCartItem(cartItem);
         }
-        
-
+        /// <summary>
+        /// Applies the voucher.
+        /// </summary>
+        /// <param name="Owner">The owner.</param>
+        /// <param name="VoucherId">The voucher identifier.</param>
+        /// <param name="date_voucher">The date voucher.</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         [HttpPost("CartFor/{Owner}/ApplyVoucher/{VoucherId}/Date/{date_voucher}")]
         public async Task<ActionResult<Cart>> ApplyVoucher(String Owner, String VoucherId, DateTime date_voucher)
         {

@@ -12,19 +12,26 @@
     - 👯 Clone this repo to your local machine using `https://github.com/leooaita/minimartapi.git`
 
 ### Step 2
-
-- Open visual studio solution file (MiniMartApi.sln)
+  Create on your local SQL Express a Database named MiniMartDB and configure the MiniMartApi database connection in DefaultConnection key from appsettings.json file on root folder solution. Maybe you should not modify the file if your local instance of SQLExpress is located on your machine and its address and name is ". \\ SQLEXPRESS; initial catalog = MinimartDB" 
 
 ### Step 3
 
-- Compile and run
+- Open visual studio solution file (MiniMartApi.sln)
 
 ### Step 4
+
+- Compile and run
+
+### Step 5
 
 - Call Api rest method /api/Setup to instantiate MiniMartDb
 - Example:
 - curl -X GET "https://{URL}/api/Setup" -H "accept: text/plain"
 
+---
+> DataBase Diagram:
+
+https://github.com/leooaita/minimartapi/blob/master/MiniMart%20ER%20Diagram.pdf
 --- 
 > We own a chain of mini marts spread around the city, called COCO.
 The system should:

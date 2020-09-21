@@ -775,6 +775,7 @@ namespace MiniMartApi.Sqls
                                         VALUES(
                                             @StoreId ,@Created ,@Owner ,@Total ,@Total_discount
                                         )
+                                    select @Id = Scope_Identity()
                                 END
                                 ELSE
                                 BEGIN
@@ -794,6 +795,7 @@ namespace MiniMartApi.Sqls
                             BEGIN
                                 DELETE FROM Cart WHERE Id = @Id
                             END
+                            select * from Cart where Id = @Id;
                     END
             ";
         }
@@ -1026,6 +1028,8 @@ namespace MiniMartApi.Sqls
 					REFERENCES [dbo].[Voucher_type]
 						([Id])
 				ON DELETE NO ACTION ON UPDATE NO ACTION;
+                alter table [dbo].[Cart] add CONSTRAINT AK_CartOwner UNIQUE(Storeid,[Owner])  
+
                     ";
         }
         public static string getQueryStore(int? Id)

@@ -67,6 +67,11 @@ namespace MiniMartApi.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<Cart>> DeleteById(int id)
         {
+            Cart cart = _cartRepository.GetByID(id);
+            foreach(CartItem cartItem in cart.Items)
+            {
+                _cartRepository.DeleteCartItem(cartItem);
+            }
             return await _cartRepository.Delete(id);
         }
     }
